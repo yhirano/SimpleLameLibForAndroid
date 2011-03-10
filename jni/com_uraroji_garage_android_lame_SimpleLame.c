@@ -39,6 +39,22 @@ JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_encode(
 	return result;
 }
 
+JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_encodeBufferInterleaved
+  (JNIEnv *env, jclass cls, jshortArray pcm, jint samples, jbyteArray mp3buf) {
+	jshort* j_pcm = (*env)->GetShortArrayElements(env, pcm, NULL);
+
+	const jsize mp3buf_size = (*env)->GetArrayLength(env, mp3buf);
+	jbyte* j_mp3buf = (*env)->GetByteArrayElements(env, mp3buf, NULL);
+
+	int result = lame_encode_buffer_interleaved(glf, j_pcm,
+			samples, j_mp3buf, mp3buf_size);
+
+	(*env)->ReleaseShortArrayElements(env, pcm, j_pcm, 0);
+	(*env)->ReleaseByteArrayElements(env, mp3buf, j_mp3buf, 0);
+
+	return result;
+}
+
 JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_flush(
 		JNIEnv *env, jclass cls, jbyteArray mp3buf) {
 	const jsize mp3buf_size = (*env)->GetArrayLength(env, mp3buf);

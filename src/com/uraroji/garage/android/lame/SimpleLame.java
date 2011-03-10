@@ -54,7 +54,7 @@ public class SimpleLame {
 	 *            number of samples per channel.
 	 * @param mp3buf
 	 *            result encoded MP3 stream. You must specified
-	 *            "7200 + (1.25 * buffer_l.length)" length array.
+	 *            "7200 + (1.25 * samples)" length array.
 	 * @return number of bytes output in mp3buf. Can be 0.<br />
 	 *         -1: mp3buf was too small<br />
 	 *         -2: malloc() problem<br />
@@ -63,6 +63,26 @@ public class SimpleLame {
 	 */
 	public native static int encode(short[] buffer_l, short[] buffer_r,
 			int samples, byte[] mp3buf);
+
+	/**
+	 * Encode buffer L & R channel data interleaved to mp3.
+	 * 
+	 * @param pcm
+	 *            PCM data for left and right channel, interleaved.
+	 * @param sambles
+	 *            number of samples per channel. <strong>not</strong> number of
+	 *            samples in pcm[].
+	 * @param mp3buf
+	 *            result encoded MP3 stream. You must specified
+	 *            "7200 + (1.25 * samples)" length array.
+	 * @return number of bytes output in mp3buf. Can be 0.<br />
+	 *         -1: mp3buf was too small<br />
+	 *         -2: malloc() problem<br />
+	 *         -3: lame_init_params() not called<br />
+	 *         -4: psycho acoustic problems
+	 */
+	public native static int encodeBufferInterleaved(short[] pcm, int samples,
+			byte[] mp3buf);
 
 	/**
 	 * Flush LAME buffer.

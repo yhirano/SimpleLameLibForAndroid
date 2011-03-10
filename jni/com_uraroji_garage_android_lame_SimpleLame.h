@@ -25,6 +25,14 @@ JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_encode
 
 /*
  * Class:     com_uraroji_garage_android_lame_SimpleLame
+ * Method:    encodeBufferInterleaved
+ * Signature: ([SI[B)I
+ */
+JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_encodeBufferInterleaved
+  (JNIEnv *, jclass, jshortArray, jint, jbyteArray);
+
+/*
+ * Class:     com_uraroji_garage_android_lame_SimpleLame
  * Method:    flush
  * Signature: ([B)I
  */
