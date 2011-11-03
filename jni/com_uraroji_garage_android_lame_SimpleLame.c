@@ -22,6 +22,11 @@ JNIEXPORT void JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_init(
 	}
 
 	glf = lame_init();
+	lame_set_in_samplerate(glf, inSamplerate);
+	lame_set_num_channels(glf, outChannel);
+	lame_set_out_samplerate(glf, outSamplerate);
+	lame_set_brate(glf, outBitrate);
+	lame_set_quality(glf, quality);
 
 	const jchar* title = NULL;
 	const jchar* artist = NULL;
