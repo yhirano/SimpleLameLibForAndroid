@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_uraroji_garage_android_lame_SimpleLame
  * Method:    init
- * Signature: (IIIII)V
+ * Signature: (IIIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_init
-  (JNIEnv *, jclass, jint, jint, jint, jint, jint);
+  (JNIEnv *, jclass, jint, jint, jint, jint, jint, jstring, jstring, jstring, jstring, jstring);
 
 /*
  * Class:     com_uraroji_garage_android_lame_SimpleLame
@@ -46,6 +46,14 @@ JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_flush
  */
 JNIEXPORT void JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_close
   (JNIEnv *, jclass);
+
+/*
+ * Class:     com_uraroji_garage_android_lame_SimpleLame
+ * Method:    log
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_uraroji_garage_android_lame_SimpleLame_log
+  (JNIEnv *, jclass, jboolean);
 
 #ifdef __cplusplus
 }

@@ -40,8 +40,44 @@ public class SimpleLame {
 	 *            5 good quality, fast<br />
 	 *            7 ok quality, really fast
 	 */
+	public static void init(int inSamplerate, int outChannel,
+			int outSamplerate, int outBitrate, int quality) {
+		init(inSamplerate, outChannel, outSamplerate, outBitrate, quality,
+				null, null, null, null, null);
+	}
+
+	/**
+	 * Initialize LAME.
+	 * 
+	 * @param inSamplerate
+	 *            input sample rate in Hz.
+	 * @param outChannel
+	 *            number of channels in input stream.
+	 * @param outSamplerate
+	 *            output sample rate in Hz.
+	 * @param outBitrate
+	 *            brate compression ratio in KHz.
+	 * @param quality
+	 *            quality=0..9. 0=best (very slow). 9=worst.<br />
+	 *            recommended:<br />
+	 *            2 near-best quality, not too slow<br />
+	 *            5 good quality, fast<br />
+	 *            7 ok quality, really fast
+	 * @param id3tagTitle
+	 *            ID3 Tag title.
+	 * @param id3tagArtist
+	 *            ID3 Tag artist.
+	 * @param id3tagAlbum
+	 *            ID3 Tag album.
+	 * @param id3tagYear
+	 *            ID3 Tag year.
+	 * @param id3tagComment
+	 *            ID3 Tag comment.
+	 */
 	public native static void init(int inSamplerate, int outChannel,
-			int outSamplerate, int outBitrate, int quality);
+			int outSamplerate, int outBitrate, int quality, String id3tagTitle,
+			String id3tagArtist, String id3tagAlbum, String id3tagYear,
+			String id3tagComment);
 
 	/**
 	 * Encode buffer to mp3.
@@ -98,4 +134,12 @@ public class SimpleLame {
 	 * Close LAME.
 	 */
 	public native static void close();
+	
+	/**
+	 * Display log.
+	 * 
+	 * @param on
+	 *            display log setting.
+	 */
+	public native static void log(boolean on);
 }
