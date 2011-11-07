@@ -1,9 +1,6 @@
 # SimpleLameLibForAndroid
+[LAME](http://lame.sourceforge.net/) MP3 encoder simple interface library for the Android.
 
-MP3 encoder library for Android.
-Simple [LAME](http://lame.sourceforge.net/) interface library for Android.
-  
 ## Others
-
 * LAME is LGPL.
 * The source code is free and no warranty expect LAME.
