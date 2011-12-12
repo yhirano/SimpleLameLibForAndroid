@@ -26,7 +26,7 @@
   Contains functions which describe the version of LAME.
 
   \author A.L. Faber
-  \version \$Id: version.c,v 1.32 2011/05/07 16:05:17 rbrito Exp $
+  \version \$Id: version.c,v 1.32.2.2 2011/11/18 09:18:28 robert Exp $
   \ingroup libmp3lame
 */
 
@@ -122,17 +122,35 @@ get_lame_very_short_version(void)
 #elif LAME_BETA_VERSION
 #define P "b"
 #elif LAME_RELEASE_VERSION && (LAME_PATCH_VERSION > 0)
-#define P "r";
+#define P "r"
 #else
-#define P " ";
+#define P ""
 #endif
     static /*@observer@ */ const char *const str =
 #if (LAME_PATCH_VERSION > 0)
-      "L" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P STR(LAME_PATCH_VERSION)
+      "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P STR(LAME_PATCH_VERSION)
 #else
       "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P
 #endif
       ;
+    return str;
+}
+
+/*! Get the _very_ short LAME version string. */
+/*!
+  It's used in the LAME VBR tag only, limited to 9 characters max.
+  Due to some 3rd party HW/SW decoders, it has to start with LAME.
+
+  \param void   
+  \return a pointer to the short version of the LAME version string.
+ */
+const char*
+get_lame_tag_encoder_short_version(void)
+{
+    static /*@observer@ */ const char *const str =
+            /* FIXME: new scheme / new version counting / drop versioning here ? */
+    "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P
+    ;
     return str;
 }
 

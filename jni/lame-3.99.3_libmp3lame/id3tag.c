@@ -29,7 +29,7 @@
  * NOTE: See http://id3.org/ for more information about ID3 tag formats.
  */
 
-/* $Id: id3tag.c,v 1.73 2011/10/17 23:15:45 robert Exp $ */
+/* $Id: id3tag.c,v 1.75.2.1 2011/11/26 18:15:27 robert Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -342,6 +342,32 @@ hasUcs2ByteOrderMarker(unsigned short bom)
 }
 
 
+static unsigned short
+swap_bytes(unsigned short w)
+{
+    return (0xff00u & (w << 8)) | (0x00ffu & (w >> 8));
+}
+
+
+static unsigned short
+toLittleEndian(unsigned short bom, unsigned short c)
+{
+    if (bom == 0xFFFEu) {
+        return swap_bytes(c);
+    }
+    return c;
+}
+
+static unsigned short
+fromLatin1Char(const unsigned short* s, unsigned short c)
+{
+    if (s[0] == 0xFFFEu) {
+        return swap_bytes(c);
+    }
+    return c;
+}
+
+
 static  size_t
 local_strdup(char **dst, const char *src)
 {
@@ -442,6 +468,88 @@ local_ucs2_pos(unsigned short const* str, unsigned short c)
     return -1;
 }
 
+static int
+maybeLatin1(unsigned short const* text)
+{
+    if (text) {
+        unsigned short bom = *text++;
+        while (*text) {
+            unsigned short c = toLittleEndian(bom, *text++);
+            if (c > 0x00fe) return 0;
+        }
+    }
+    return 1;
+}
+
+static int searchGenre(char const* genre);
+static int sloppySearchGenre(char const* genre);
+
+static int
+lookupGenre(char const* genre)
+{
+    char   *str;
+    int     num = strtol(genre, &str, 10);
+    /* is the input a string or a valid number? */
+    if (*str) {
+        num = searchGenre(genre);
+        if (num == GENRE_NAME_COUNT) {
+            num = sloppySearchGenre(genre);
+        }
+        if (num == GENRE_NAME_COUNT) {
+            return -2; /* no common genre text found */
+        }
+    }
+    else {
+        if ((num < 0) || (num >= GENRE_NAME_COUNT)) {
+            return -1; /* number unknown */
+        }
+    }
+    return num;
+}
+
+static unsigned char *
+writeLoBytes(unsigned char *frame, unsigned short const *str, size_t n);
+
+static char*
+local_strdup_utf16_to_latin1(unsigned short const* utf16)
+{
+    size_t  len = local_ucs2_strlen(utf16);
+    unsigned char* latin1 = calloc(len+1, 1);
+    writeLoBytes(latin1, utf16, len);
+    return (char*)latin1;
+}
+
+
+static int
+id3tag_set_genre_utf16(lame_t gfp, unsigned short const* text)
+{
+    lame_internal_flags* gfc = gfp->internal_flags;
+    int   ret;
+    if (text == 0) {
+        return -3;
+    }
+    if (!hasUcs2ByteOrderMarker(text[0])) {
+        return -3;
+    }
+    if (maybeLatin1(text)) {
+        char*   latin1 = local_strdup_utf16_to_latin1(text);
+        int     num = lookupGenre(latin1);
+        free(latin1);
+        if (num == -1) return -1; /* number out of range */
+        if (num >= 0) {           /* common genre found  */
+            gfc->tag_spec.flags |= CHANGED_FLAG;
+            gfc->tag_spec.genre_id3v1 = num;
+            copyV1ToV2(gfc, ID_GENRE, genre_names[num]);
+            return 0;
+        }
+    }
+    ret = id3v2_add_ucs2(gfp->internal_flags, ID_GENRE, 0, 0, text);
+    if (ret == 0) {
+        gfc->tag_spec.flags |= CHANGED_FLAG;
+        gfc->tag_spec.genre_id3v1 = GENRE_INDEX_OTHER;
+    }
+    return ret;
+}
 
 /*
 Some existing options for ID3 tag can be specified by --tv option
@@ -530,19 +638,23 @@ static uint32_t
 toID3v2TagId_ucs2(unsigned short const *s)
 {
     unsigned int i, x = 0;
+    unsigned short bom = 0;
     if (s == 0) {
         return 0;
     }
+    bom = s[0];
+    if (hasUcs2ByteOrderMarker(bom)) {
+        ++s;
+    }
     for (i = 0; i < 4 && s[i] != 0; ++i) {
-        unsigned short const c = s[i];
-        unsigned int const u = 0x0ff & c;
-        x <<= 8;
-        x |= u;
+        unsigned short const c = toLittleEndian(bom, s[i]);
         if (c < 'A' || 'Z' < c) {
             if (c < '0' || '9' < c) {
                 return 0;
             }
         }
+        x <<= 8;
+        x |= c;
     }
     return x;
 }
@@ -785,15 +897,18 @@ id3tag_set_userinfo_latin1(lame_internal_flags* gfc, uint32_t id, char const *fi
 static int
 id3tag_set_userinfo_ucs2(lame_internal_flags* gfc, uint32_t id, unsigned short const *fieldvalue)
 {
-    int     a, b, rc;
-    unsigned short* dsc = 0, *val = 0;
+    int     a, b, rc = -7;
+    unsigned short const separator = fromLatin1Char(fieldvalue,'=');
     b = local_ucs2_strlen(fieldvalue);
-    a = local_ucs2_pos(fieldvalue, '=');
-    local_ucs2_substr(&dsc, fieldvalue, 0, a);
-    local_ucs2_substr(&val, fieldvalue, a+1, b);
-    rc = id3v2_add_ucs2(gfc, id, "XXX", dsc, val);
-    free(dsc);
-    free(val);
+    a = local_ucs2_pos(fieldvalue, separator);
+    if (a >= 0 && a <= b) { 
+        unsigned short* dsc = 0, *val = 0;
+        local_ucs2_substr(&dsc, fieldvalue, 0, a);
+        local_ucs2_substr(&val, fieldvalue, a+1, b);
+        rc = id3v2_add_ucs2(gfc, id, "XXX", dsc, val);
+        free(dsc);
+        free(val);
+    }
     return rc;
 }
 
@@ -820,6 +935,9 @@ id3tag_set_textinfo_utf16(lame_global_flags * gfp, char const *id, unsigned shor
         if (gfp != 0) {
             if (frame_id == ID_TXXX || frame_id == ID_WXXX) {
                 return id3tag_set_userinfo_ucs2(gfp->internal_flags, frame_id, text);
+            }
+            if (frame_id == ID_GENRE) {
+                return id3tag_set_genre_utf16(gfp, text);
             }
             return id3v2_add_ucs2(gfp->internal_flags, frame_id, 0, 0, text);
         }
@@ -1082,31 +1200,15 @@ id3tag_set_genre(lame_global_flags * gfp, const char *genre)
     lame_internal_flags *gfc = gfp->internal_flags;
     int     ret = 0;
     if (genre && *genre) {
-        char   *str;
-        int     num = strtol(genre, &str, 10);
-        /* is the input a string or a valid number? */
-        if (*str) {
-            num = searchGenre(genre);
-            if (num == GENRE_NAME_COUNT) {
-                num = sloppySearchGenre(genre);
-            }
-            if (num == GENRE_NAME_COUNT) {
-                num = GENRE_INDEX_OTHER;
-                ret = -2;
-            }
-            else {
-                genre = genre_names[num];
-            }
-        }
-        else {
-            if ((num < 0) || (num >= GENRE_NAME_COUNT)) {
-                return -1;
-            }
+        int const num = lookupGenre(genre);
+        if (num == -1) return num;
+        gfc->tag_spec.flags |= CHANGED_FLAG;
+        if (num >= 0) {
+            gfc->tag_spec.genre_id3v1 = num;
             genre = genre_names[num];
         }
-        gfc->tag_spec.genre_id3v1 = num;
-        gfc->tag_spec.flags |= CHANGED_FLAG;
-        if (ret) {
+        else {
+            gfc->tag_spec.genre_id3v1 = GENRE_INDEX_OTHER;
             gfc->tag_spec.flags |= ADD_V2_FLAG;
         }
         copyV1ToV2(gfc, ID_GENRE, genre);
@@ -1218,7 +1320,7 @@ sizeOfWxxxNode(FrameDataNode const *node)
             n += node->txt.dim;
             break;
         case 1:
-            n += node->txt.dim; /* UCS2 -> Latin1 */
+            n += node->txt.dim - 1; /* UCS2 -> Latin1, skip BOM */
             break;
         }
     }
@@ -1237,9 +1339,13 @@ writeChars(unsigned char *frame, char const *str, size_t n)
 static unsigned char *
 writeUcs2s(unsigned char *frame, unsigned short const *str, size_t n)
 {
-    while (n--) {
-        *frame++ = 0xff & (*str >> 8);
-        *frame++ = 0xff & (*str++);
+    if (n > 0) {
+        unsigned short const bom = *str;
+        while (n--) {
+            unsigned short const c = toLittleEndian(bom, *str++);
+            *frame++ = 0x00ffu & c;
+            *frame++ = 0x00ffu & (c >> 8);
+        }
     }
     return frame;
 }
@@ -1247,13 +1353,20 @@ writeUcs2s(unsigned char *frame, unsigned short const *str, size_t n)
 static unsigned char *
 writeLoBytes(unsigned char *frame, unsigned short const *str, size_t n)
 {
-    str++; /* skip BOM */
-    while (n--) {
-        unsigned short c = *str++;
-        if (c < 0x20u || 0xff < c) {
-            c = 0x20; /* blank */
+    if (n > 0) {
+        unsigned short const bom = *str;
+        if (hasUcs2ByteOrderMarker(bom)) {
+            str++; n--; /* skip BOM */
         }
-        *frame++ = c;
+        while (n--) {
+            unsigned short const c = toLittleEndian(bom, *str++);
+            if (c < 0x0020u || 0x00ffu < c) {
+                *frame++ = 0x0020; /* blank */
+            }
+            else {
+                *frame++ = c;
+            }
+        }
     }
     return frame;
 }
@@ -1429,15 +1542,16 @@ id3tag_set_fieldvalue_utf16(lame_global_flags * gfp, const unsigned short *field
 {
     if (fieldvalue && *fieldvalue) {
         size_t dx = hasUcs2ByteOrderMarker(fieldvalue[0]);
+        unsigned short const separator = fromLatin1Char(fieldvalue, '=');
         char fid[5] = {0,0,0,0,0};
-        uint32_t const frame_id = toID3v2TagId_ucs2(fieldvalue+dx);
-        if (local_ucs2_strlen(fieldvalue) < (5+dx) || fieldvalue[dx+4] != '=') {
+        uint32_t const frame_id = toID3v2TagId_ucs2(fieldvalue);
+        if (local_ucs2_strlen(fieldvalue) < (5+dx) || fieldvalue[4+dx] != separator) {
             return -1;
         }
-        fid[0] = (fieldvalue[dx+0] & 0x0ff);
-        fid[1] = (fieldvalue[dx+1] & 0x0ff);
-        fid[2] = (fieldvalue[dx+2] & 0x0ff);
-        fid[3] = (fieldvalue[dx+3] & 0x0ff);
+        fid[0] = (frame_id >> 24) & 0x0ff;
+        fid[1] = (frame_id >> 16) & 0x0ff;
+        fid[2] = (frame_id >> 8) & 0x0ff;
+        fid[3] = frame_id & 0x0ff;
         if (frame_id != 0) {
             unsigned short* txt = 0;
             int     rc;
