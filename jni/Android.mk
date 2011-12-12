@@ -7,6 +7,7 @@ LAME_LIBMP3_DIR := lame-3.99.3_libmp3lame
 LOCAL_LDLIBS    := -llog
 LOCAL_MODULE    := mp3lame
 LOCAL_ARM_MODE  := arm
+LOCAL_CFLAGS    += -ffast-math
 LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/fft.c \
                    $(LAME_LIBMP3_DIR)/id3tag.c \
