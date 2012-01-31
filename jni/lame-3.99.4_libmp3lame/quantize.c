@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* $Id: quantize.c,v 1.216 2011/05/07 16:05:17 rbrito Exp $ */
+/* $Id: quantize.c,v 1.216.2.1 2012/01/08 23:49:58 robert Exp $ */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -249,9 +249,16 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
     cod_info->scalefac_scale = 0;
     cod_info->count1table_select = 0;
     cod_info->part2_length = 0;
-    cod_info->sfb_lmax = SBPSY_l;
-    cod_info->sfb_smin = SBPSY_s;
-    cod_info->psy_lmax = gfc->sv_qnt.sfb21_extra ? SBMAX_l : SBPSY_l;
+    if (cfg->samplerate_out <= 8000) {
+      cod_info->sfb_lmax = 17;
+      cod_info->sfb_smin = 9;
+      cod_info->psy_lmax = 17;
+    }
+    else {
+      cod_info->sfb_lmax = SBPSY_l;
+      cod_info->sfb_smin = SBPSY_s;
+      cod_info->psy_lmax = gfc->sv_qnt.sfb21_extra ? SBMAX_l : SBPSY_l;
+    }
     cod_info->psymax = cod_info->psy_lmax;
     cod_info->sfbmax = cod_info->sfb_lmax;
     cod_info->sfbdivide = 11;
@@ -274,10 +281,18 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
             cod_info->sfb_smin = 3;
             cod_info->sfb_lmax = cfg->mode_gr * 2 + 4;
         }
-        cod_info->psymax
-            = cod_info->sfb_lmax
-            + 3 * ((gfc->sv_qnt.sfb21_extra ? SBMAX_s : SBPSY_s) - cod_info->sfb_smin);
-        cod_info->sfbmax = cod_info->sfb_lmax + 3 * (SBPSY_s - cod_info->sfb_smin);
+        if (cfg->samplerate_out <= 8000) {
+            cod_info->psymax
+                = cod_info->sfb_lmax
+                + 3 * (9 - cod_info->sfb_smin);
+            cod_info->sfbmax = cod_info->sfb_lmax + 3 * (9 - cod_info->sfb_smin);
+        }
+        else {
+            cod_info->psymax
+                = cod_info->sfb_lmax
+                + 3 * ((gfc->sv_qnt.sfb21_extra ? SBMAX_s : SBPSY_s) - cod_info->sfb_smin);
+            cod_info->sfbmax = cod_info->sfb_lmax + 3 * (SBPSY_s - cod_info->sfb_smin);
+        }
         cod_info->sfbdivide = cod_info->sfbmax - 18;
         cod_info->psy_lmax = cod_info->sfb_lmax;
         /* re-order the short blocks, for more efficient encoding below */

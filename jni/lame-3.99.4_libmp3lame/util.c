@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* $Id: util.c,v 1.154 2011/10/18 21:51:20 robert Exp $ */
+/* $Id: util.c,v 1.154.2.1 2012/01/08 23:49:58 robert Exp $ */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -70,15 +70,6 @@ free_id3tag(lame_internal_flags * const gfc)
         gfc->tag_spec.albumart = 0;
         gfc->tag_spec.albumart_size = 0;
         gfc->tag_spec.albumart_mimetype = MIMETYPE_NONE;
-    }
-    if (gfc->tag_spec.values != 0) {
-        unsigned int i;
-        for (i = 0; i < gfc->tag_spec.num_values; ++i) {
-            free(gfc->tag_spec.values[i]);
-        }
-        free(gfc->tag_spec.values);
-        gfc->tag_spec.values = 0;
-        gfc->tag_spec.num_values = 0;
     }
     if (gfc->tag_spec.v2_head != 0) {
         FrameDataNode *node = gfc->tag_spec.v2_head;
