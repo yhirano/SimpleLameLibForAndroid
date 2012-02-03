@@ -3,4 +3,4 @@
 
 ## License
 * LAME source code licensed under the LGPL.
-* SimpleLameLibForAndroid source code is free and no warranty expect LAME.
+* SimpleLameLibForAndroid source code is free and no warranty except for LAME.
