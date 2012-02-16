@@ -3,8 +3,8 @@ The instructions for building LAME on Android.
 - Referred to the http://blog.libertadtech.com/2011/02/porting-lame-encoder-to-android-arm.html
 
 1. Download LAME sources, extract, copy all sources from directory libmp3lame to
-   jni/lame-3.99.3_libmp3lame directory. Also copy lame.h which is located in
-   include directory of LAME sources to jni/lame-3.99.3_libmp3lame.
+   jni/lame-3.99.4_libmp3lame directory. Also copy lame.h which is located in
+   include directory of LAME sources to jni/lame-3.99.4_libmp3lame.
 
 2. Create jni/Android.mk file. it should look like this:
 
@@ -13,11 +13,12 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LAME_LIBMP3_DIR := lame-3.99.3_libmp3lame
+LAME_LIBMP3_DIR := lame-3.99.4_libmp3lame
 
 LOCAL_LDLIBS    := -llog
 LOCAL_MODULE    := mp3lame
 LOCAL_ARM_MODE  := arm
+LOCAL_CFLAGS    += -ffast-math
 LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/fft.c \
                    $(LAME_LIBMP3_DIR)/id3tag.c \
@@ -44,12 +45,12 @@ include $(BUILD_SHARED_LIBRARY)
 
 3. Remove Makefile.am, Makefile.in, logoe.ico, depcomp, lame.rc and i386 directory.
 
-4. Edit file jni/lame-3.99.3_libmp3lame/utils.h, and replace definition
+4. Edit file jni/lame-3.99.4_libmp3lame/utils.h, and replace definition
      extern ieee754_float32_t fast_log2(ieee754_float32_t x);
    with this
      extern float fast_log2(float x);
 
-5. Edit file jni/lame-3.99.3_libmp3lame/set_get.h, and replace definition
+5. Edit file jni/lame-3.99.4_libmp3lame/set_get.h, and replace definition
      #include <lame.h>
    with this 
      #include "./lame.h"
