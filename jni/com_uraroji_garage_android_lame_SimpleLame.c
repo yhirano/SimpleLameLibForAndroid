@@ -1,5 +1,5 @@
 #include <android/log.h>
-#include "lame-3.99.3_libmp3lame/lame.h"
+#include "lame-3.99.4_libmp3lame/lame.h"
 #include "com_uraroji_garage_android_lame_SimpleLame.h"
 
 static const char* TAG = "SimpleLameLib";
