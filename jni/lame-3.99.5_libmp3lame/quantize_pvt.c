@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* $Id: quantize_pvt.c,v 1.169.2.1 2012/01/08 23:49:58 robert Exp $ */
+/* $Id: quantize_pvt.c,v 1.169.2.2 2012/02/07 13:40:37 robert Exp $ */
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -641,7 +641,9 @@ calc_xmin(lame_internal_flags const *gfc,
                     xmin = x;
             }
         }
-        *pxmin++ = Max(xmin, 1e-20f);
+        xmin = Max(xmin, DBL_EPSILON);
+        cod_info->energy_above_cutoff[gsfb] = (en0 > xmin+1e-14f) ? 1 : 0;
+        *pxmin++ = xmin;
     }                   /* end of long block loop */
 
 
@@ -729,7 +731,9 @@ calc_xmin(lame_internal_flags const *gfc,
                         xmin = x;
                 }
             }
-            *pxmin++ = Max(xmin, 1e-20f);
+            xmin = Max(xmin, DBL_EPSILON);
+            cod_info->energy_above_cutoff[gsfb+b] = (en0 > xmin+1e-14f) ? 1 : 0;
+            *pxmin++ = xmin;
         }               /* b */
         if (cfg->use_temporal_masking_effect) {
             if (pxmin[-3] > pxmin[-3 + 1])

@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LAME_LIBMP3_DIR := lame-3.99.4_libmp3lame
+LAME_LIBMP3_DIR := lame-3.99.5_libmp3lame
 
 LOCAL_LDLIBS    := -llog
 LOCAL_MODULE    := mp3lame
