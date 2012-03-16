@@ -1,8 +1,9 @@
-
 package com.uraroji.garage.android.lame;
 
 /**
- * LAME interface class
+ * LAME interface class.
+ * 
+ * This class is NOT object-oriented interface.
  */
 public class SimpleLame {
 

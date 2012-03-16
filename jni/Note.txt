@@ -19,6 +19,7 @@ LOCAL_LDLIBS    := -llog
 LOCAL_MODULE    := mp3lame
 LOCAL_ARM_MODE  := arm
 LOCAL_CFLAGS    += -ffast-math
+LOCAL_CFLAGS    += -I $(LAME_LIBMP3_DIR)
 LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/fft.c \
                    $(LAME_LIBMP3_DIR)/id3tag.c \
@@ -38,7 +39,10 @@ LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/set_get.c \
                    $(LAME_LIBMP3_DIR)/takehiro.c \
                    $(LAME_LIBMP3_DIR)/vbrquantize.c \
-                   $(LAME_LIBMP3_DIR)/version.c
+                   $(LAME_LIBMP3_DIR)/version.c \
+                   simple_lame_lib.c \
+                   com_uraroji_garage_android_lame_SimpleLame.c \
+                   com_uraroji_garage_android_lame_Lame.cpp
 
 include $(BUILD_SHARED_LIBRARY)
 ===
@@ -50,10 +54,5 @@ include $(BUILD_SHARED_LIBRARY)
    with this
      extern float fast_log2(float x);
 
-5. Edit file jni/lame-3.99.5_libmp3lame/set_get.h, and replace definition
-     #include <lame.h>
-   with this 
-     #include "./lame.h"
-
-6. Go to the jni directory and run $pathtoandroidndk/ndk-build and you're done,
+5. Go to the jni directory and run $pathtoandroidndk/ndk-build and you're done,
    you'll have limp3lame.so compiled.

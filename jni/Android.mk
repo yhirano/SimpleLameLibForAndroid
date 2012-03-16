@@ -7,7 +7,7 @@ LAME_LIBMP3_DIR := lame-3.99.5_libmp3lame
 LOCAL_LDLIBS    := -llog
 LOCAL_MODULE    := mp3lame
 LOCAL_ARM_MODE  := arm
-LOCAL_CFLAGS    += -ffast-math
+LOCAL_CFLAGS    += -ffast-math -I $(LAME_LIBMP3_DIR)
 LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/fft.c \
                    $(LAME_LIBMP3_DIR)/id3tag.c \
@@ -28,6 +28,8 @@ LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/takehiro.c \
                    $(LAME_LIBMP3_DIR)/vbrquantize.c \
                    $(LAME_LIBMP3_DIR)/version.c \
-                   com_uraroji_garage_android_lame_SimpleLame.c
+                   simple_lame_lib.c \
+                   com_uraroji_garage_android_lame_SimpleLame.c \
+                   com_uraroji_garage_android_lame_Lame.cpp
 
 include $(BUILD_SHARED_LIBRARY)
