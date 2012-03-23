@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="jar">
+	<property name="build.jar" value="./simplelamelib.jar" />
+	<property name="build.src" value="./src" />
+	<property name="build.dest" value="./jarbin" />
+	<property name="jni.src" value="./jni" />
+	<property name="ndk.dir" value="/Android/android-ndk-r7b/" />
+
+	<target name="clean">
+		<delete file="${build.jar}" />
+		<delete dir="${build.dest}" />
+		<exec executable="${ndk.dir}/ndk-build" dir="${jni.src}" failonerror="true">
+			<arg value="clean" />
+		</exec>
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${build.dest}" />
+		<javac destdir="${build.dest}" srcdir="${build.src}" includeantruntime="false">
+			<include name="**/*.java" />
+		</javac>
+		<exec executable="${ndk.dir}/ndk-build" dir="${jni.src}" failonerror="true" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${build.jar}">
+			<fileset dir="${build.dest}" />
+		</jar>
+		<delete dir="${build.dest}" />
+	</target>
+</project>
