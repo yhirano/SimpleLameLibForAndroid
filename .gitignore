@@ -1,5 +1,5 @@
-bin/
-gen/
-obj/
-libs/
+SimpleLameLibForAndroid/bin/
+SimpleLameLibForAndroid/gen/
+SimpleLameLibForAndroid/obj/
 .DS_Store
+
