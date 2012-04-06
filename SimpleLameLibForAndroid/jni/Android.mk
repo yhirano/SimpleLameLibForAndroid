@@ -29,7 +29,7 @@ LOCAL_SRC_FILES := $(LAME_LIBMP3_DIR)/bitstream.c \
                    $(LAME_LIBMP3_DIR)/vbrquantize.c \
                    $(LAME_LIBMP3_DIR)/version.c \
                    simple_lame_lib.c \
-                   com_uraroji_garage_android_lame_SimpleLame.c \
-                   com_uraroji_garage_android_lame_Lame.cpp
+                   com_uraroji_garage_android_lame_Encoder.cpp \
+                   com_uraroji_garage_android_lame_Lame.c
 
 include $(BUILD_SHARED_LIBRARY)

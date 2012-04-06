@@ -9,46 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_uraroji_garage_android_lame_Lame
- * Method:    init
- * Signature: (IIIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
- */
-JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_Lame_init
-  (JNIEnv *, jclass, jint, jint, jint, jint, jint, jstring, jstring, jstring, jstring, jstring);
-
-/*
- * Class:     com_uraroji_garage_android_lame_Lame
- * Method:    encode
- * Signature: (I[S[SI[B)I
- */
-JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_Lame_encode
-  (JNIEnv *, jclass, jint, jshortArray, jshortArray, jint, jbyteArray);
-
-/*
- * Class:     com_uraroji_garage_android_lame_Lame
- * Method:    encodeBufferInterleaved
- * Signature: (I[SI[B)I
- */
-JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_Lame_encodeBufferInterleaved
-  (JNIEnv *, jclass, jint, jshortArray, jint, jbyteArray);
-
-/*
- * Class:     com_uraroji_garage_android_lame_Lame
- * Method:    flush
- * Signature: (I[B)I
- */
-JNIEXPORT jint JNICALL Java_com_uraroji_garage_android_lame_Lame_flush
-  (JNIEnv *, jclass, jint, jbyteArray);
-
-/*
- * Class:     com_uraroji_garage_android_lame_Lame
- * Method:    close
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_uraroji_garage_android_lame_Lame_close
-  (JNIEnv *, jclass, jint);
-
-/*
- * Class:     com_uraroji_garage_android_lame_Lame
  * Method:    log
  * Signature: (Z)V
  */

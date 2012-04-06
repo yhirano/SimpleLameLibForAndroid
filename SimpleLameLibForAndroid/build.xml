@@ -1,31 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="jar">
+	<property name="version" value="1.5.0" />
+
+	<property environment="env" />
+	<condition property="android-home" value="${env.ANDROID_HOME}">
+		<isset property="env.ANDROID_HOME"/>
+	</condition>
+	<condition property="android-ndk-root" value="${env.ANDROID_NDK_ROOT}">
+		<isset property="env.ANDROID_NDK_ROOT"/>
+	</condition>
 	<property name="build.jar" value="./simplelamelib.jar" />
 	<property name="build.src" value="./src" />
 	<property name="build.dest" value="./jarbin" />
 	<property name="jni.src" value="./jni" />
-	<property name="ndk.dir" value="/Android/android-ndk-r7b/" />
+	<property name="jar.specification.title" value="SimpleLameLibForAndroid" />
+	<property name="jar.specification.version" value="${version}" />
+	<property name="jar.specification.vendor" value="garage.uraroji.com" />
+	<property name="jar.specification.title" value="com.uraroji.garage.android.lame" />
+	<property name="jar.specification.version" value="${version}" />
+	<property name="jar.specification.vendor" value="garage.uraroji.com" />
 
 	<target name="clean">
 		<delete file="${build.jar}" />
 		<delete dir="${build.dest}" />
-		<exec executable="${ndk.dir}/ndk-build" dir="${jni.src}" failonerror="true">
+		<exec executable="${android-ndk-root}/ndk-build" dir="${jni.src}" failonerror="true">
 			<arg value="clean" />
 		</exec>
 	</target>
 
 	<target name="compile" depends="clean">
 		<mkdir dir="${build.dest}" />
-		<javac destdir="${build.dest}" srcdir="${build.src}" includeantruntime="false">
+		<javac destdir="${build.dest}" srcdir="${build.src}" includeantruntime="false" bootclasspath="${android-home}/platforms/android-7/android.jar">
 			<include name="**/*.java" />
 		</javac>
-		<exec executable="${ndk.dir}/ndk-build" dir="${jni.src}" failonerror="true" />
+		<exec executable="${android-ndk-root}/ndk-build" dir="${jni.src}" failonerror="true" />
 	</target>
 
 	<target name="jar" depends="compile">
 		<jar destfile="${build.jar}">
 			<fileset dir="${build.dest}" />
-		</jar>
+			<manifest>
+				<attribute name="Specification-Title" value="${jar.specification.title}"/>
+				<attribute name="Specification-Version" value="${jar.specification.version}"/>
+				<attribute name="Specification-Vendor"  value="${jar.specification.vendor}"/>
+				<attribute name="Implementation-Title" value="${jar.specification.title}"/>
+				<attribute name="Implementation-Version" value="${jar.specification.version}"/>
+				<attribute name="Implementation-Vendor"  value="${jar.specification.vendor}"/>
+			</manifest>
+  		</jar>
 		<delete dir="${build.dest}" />
 	</target>
 </project>
