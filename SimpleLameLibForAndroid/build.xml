@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="jar">
-	<property name="version" value="1.5.0" />
+	<property name="version" value="1.5.1" />
 
 	<property environment="env" />
 	<condition property="android-home" value="${env.ANDROID_HOME}">
